@@ -1,0 +1,120 @@
+#张瑞琦 1800011834
+"""Module for tile work
+
+This module provides all the ways to pave a wall of given length and
+width with bricks of given length and width.It can also draw the way
+you choose."""
+
+m=int(input('请输入墙的长'))
+n=int(input('请输入墙的宽'))
+a=int(input('请输入瓷砖的长'))
+b=int(input('请输入瓷砖的宽'))
+maps=[0]*m*n
+def panduan(m,n,a,b,i):
+    ''' Returns: 如果能铺，返回True；如果不能铺，返回False
+        The value returned has type bool.
+        Parameter m:墙的长度
+        Precondition: m is a int
+        Parameter n:墙的宽度
+        Precondition: n is a int
+        Parameter a:瓷砖的长度
+        Precondition: a is a int
+        Parameter b:瓷砖的宽度
+        Precondition: b is a int'''
+
+    if i%m+a>m or i//m+b>n:
+        return False
+    for y in range(b):
+        for x in maps[i+y*m:i+y*m+a]:
+            if x!=0:
+                return False
+    return True
+def puzhuan(m,n,a,b,i=0):
+    ''' Returns: 铺砖的所有方法
+        The value returned has type list.
+        Parameter m:墙的长度
+        Precondition: m is a int
+        Parameter n:墙的宽度
+        Precondition: n is a int
+        Parameter a:瓷砖的长度
+        Precondition: a is a int
+        Parameter b:瓷砖的宽度
+        Precondition: b is a int'''
+    aa=[]
+    if i>=m*n:
+        return [[]]
+    while maps[i]!=0:
+        i=i+1
+        if i==m*n:
+            return [[]]
+    for (a,b) in [(a,b),(b,a)]:
+        if panduan(m,n,a,b,i):
+            for x in range(b):
+                maps[i+x*m:i+x*m+a]=a*[1]
+            pzs=puzhuan(m,n,a,b,i)
+            brs=tuple([br for y in range(b) for br in range(i+y*m,i+y*m+a)])
+            for pz in pzs:
+                pz.append(brs)
+            aa.extend(pzs)
+            for x in range(b):
+                maps[i+x*m:i+x*m+a]=a*[0]
+    return aa
+print(puzhuan(m,n,a,b))
+def print1(m,n,a,b):
+    for i in puzhuan(m,n,a,b):
+        print(i)
+print1(m,n,a,b)
+p=int(input('请输入画第几种答案'+'（从1到'+str(len(puzhuan(m,n,a,b)))+')'))
+def draw(m,n,a,b,p):
+    import turtle
+    xiaoming=turtle.Screen()
+    xiaoming.setworldcoordinates(0,0,m,n)
+    t=turtle.Pen()
+    t.speed(10)
+    t.pensize(7)
+    t.color('black')
+    for x in puzhuan(m,n,a,b)[p-1]:
+            z1=min(x)%m
+            z2=min(x)//m
+            t.up()
+            t.goto(z1,z2)
+            t.down()
+            if max(x)-min(x)==a*b-1:
+                t.fd(a)
+                t.lt(90)
+                t.fd(b)
+                t.lt(90)
+                t.fd(a)
+                t.lt(90)
+                t.fd(b)
+                t.lt(90)
+            else:
+                t.fd(b)
+                t.lt(90)
+                t.fd(a)
+                t.lt(90)
+                t.fd(b)
+                t.lt(90)
+                t.fd(a)
+                t.lt(90)
+    t.pensize(1)
+    t.color('blue')
+    for i in range(m*n):
+        z3=i%m
+        z4=i//m
+        t.up()
+        t.goto(z3,z4)
+        t.down()
+        t.fd(1)
+        t.lt(90)
+        t.fd(1)
+        t.lt(90)
+        t.fd(1)
+        t.lt(90)
+        t.fd(1)
+        t.lt(90)
+        t.up()
+        t.goto(z3+0.5,z4+0.5)
+        t.write(i,font=('Arial',20,'normal'))
+    t.goto(0,0)
+draw(m,n,a,b,p)
