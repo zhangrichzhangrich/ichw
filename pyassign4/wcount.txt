@@ -1,0 +1,66 @@
+"""功能：统计来自网络的文本的单词的频率
+张瑞琦
+1800011834
+www.1800011834@pku.edu.cn
+"""
+import sys
+from urllib.request import urlopen
+import string
+import urllib
+import http.client
+
+def wcount(lines,topn=10):
+    """从文本字符串中统计单词并根据它们的数量进行排序，
+    按照相反的顺序，输出字数，每行一个。    """
+    count_dict = {}    
+    for i in string.punctuation:
+        lines = lines.replace(i , ' ')    #去掉标点   
+    for i in lines.split():    #分成单词
+        if i not in count_dict:
+            count_dict[i]=1
+        else:
+            count_dict[i]+=1    #用字典计数
+    
+    count_list=[i for i in count_dict.items()]
+    for i in range(len(count_list)):
+        count_list[i] = list(count_list[i])
+        count_list[i].reverse()
+    count_list.sort()
+    count_list.reverse()    #按次数进行倒序生成列表    
+    n = 1
+    while n<=topn:
+        print(str(count_list[n-1][1])+':'+str(count_list[n-1][0]))
+        n+=1    #输出前topn的单词
+
+if __name__=='__main__':
+    if  len(sys.argv)==1:
+        print('Usage: {} url [topn]'.format(sys.argv[0]))
+        print('url: URL of the txt file to analyze ')
+        print('topn: how many (words count) to output. If not given, will output top 10 words')
+        sys.exit(1)
+
+    else:
+        url=sys.argv[1]    #获得输入的网址
+        if len(sys.argv)>=3:
+            if str.isdigit(sys.argv[2]):
+                topn=int(sys.argv[2])   #获得topn
+            else:
+                print('输入的topn必须是正整数'.format(sys.argv[2]))    #当输入非法topn时
+                topn=0
+        elif len(sys.argv)==2:
+            topn=10    #未给定topn时            
+        try:
+            txt=urlopen(url)    #打开网页获得txt文件
+            txt_bytes=txt.read()    #得到字节流形式文本
+            txt.close()    #关掉网页
+            txt_str=txt_bytes.decode('UTF-8','strict')    #字节流转为为字符串形式
+            txt_lower=txt_str.lower()    #转换为小写以方便统计
+            wcount(txt_lower,topn)    #统计次数输出前topn         
+        except urllib.error.URLError:    
+            print(sys.exc_info()[1])
+        except urllib.error.HTTPError:    
+            print(sys.exc_info()[1])
+        except http.client.RemoteDisconnected:
+            print(sys.exc_info()[1])      
+        except ValueError:
+            print('输入的网址格式不正确')    #处理部分错误
